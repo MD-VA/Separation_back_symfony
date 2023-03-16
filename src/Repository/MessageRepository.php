@@ -39,6 +39,8 @@ class MessageRepository extends ServiceEntityRepository
         }
     }
 
+    //find upvotes
+    
 //    /**
 //     * @return Message[] Returns an array of Message objects
 //     */

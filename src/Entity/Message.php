@@ -36,6 +36,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     denormalizationContext: ['groups' => ['message:read']]
 )]
+#[ApiResource(
+    uriTemplate: '/message/{message_id}/upvote',
+    operations: [ new Patch() ],
+    uriVariables: [
+        'message_id' => new Link(toProperty: 'message', fromClass: Message::class)
+    ],
+    denormalizationContext: ['groups' => ['request:accept']]
+)]
 class Message
 {
     #[ORM\Id]
@@ -46,6 +54,9 @@ class Message
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['message:write', 'message:read'])]
     private ?string $content = null;
+
+    #[ORM\Column]
+    private ?int upvote = null;
 
     #[ORM\Column]
     #[Groups(['message:read'])]
@@ -113,6 +124,18 @@ class Message
     {
         $this->owner = $owner;
 
+        return $this;
+    }
+
+    public function getUpVote(): ?Vote
+    {
+        return $this->upvote;
+    }
+
+    public function setUpVote(?Vote $vote): ?Vote
+    {
+        $this->upvote = $vote
+        
         return $this;
     }
 
