@@ -9,18 +9,19 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Controller\CreatePost;
 use App\Repository\MessageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Controller\UpVoteMessageController;
+use Symfony\Flex\Path;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 #[ApiResource(
     operations: [
-//        new GetCollection(normalizationContext: ['groups' => ['thread:read']]),
         new Post(denormalizationContext: ['groups' => ['message:write']], security: "is_granted('ROLE_USER')"),
-//        new Get(normalizationContext: ['groups' => ['thread:read']]),
         new Delete(security: "is_granted('ROLE_ADMIN') or object.owner == user"),
         new Patch(
             denormalizationContext: ['groups' => ['message:write']],
@@ -37,12 +38,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['message:read']]
 )]
 #[ApiResource(
-    uriTemplate: '/message/{message_id}/upvote',
-    operations: [ new Patch() ],
-    uriVariables: [
-        'message_id' => new Link(toProperty: 'message', fromClass: Message::class)
-    ],
-    denormalizationContext: ['groups' => ['request:accept']]
+    operations: [ new Patch(
+        uriTemplate: '/message/{id}/vote',
+        name: '',
+        controller: UpVoteMessageController::class,
+    ) ],
+    denormalizationContext: ['groups' => ['message:empty']]
 )]
 class Message
 {
@@ -54,9 +55,6 @@ class Message
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['message:write', 'message:read'])]
     private ?string $content = null;
-
-    #[ORM\Column]
-    private ?int upvote = null;
 
     #[ORM\Column]
     #[Groups(['message:read'])]
@@ -79,10 +77,15 @@ class Message
     #[Groups(['message:read'])]
     private ?\DateTimeInterface $modifiedAt = null;
 
+    #[ORM\Column]
+    #[Groups(['message:read'])]
+    private ?int $votes = null;
+
     public function __construct()
     {
         $this->hasBeenEdited = false;
         $this->createdAt = new \DateTimeImmutable('now');
+        $this->votes = 0;
     }
 
 
@@ -127,18 +130,6 @@ class Message
         return $this;
     }
 
-    public function getUpVote(): ?Vote
-    {
-        return $this->upvote;
-    }
-
-    public function setUpVote(?Vote $vote): ?Vote
-    {
-        $this->upvote = $vote
-        
-        return $this;
-    }
-
     public function getThread(): ?Thread
     {
         return $this->thread;
@@ -171,6 +162,18 @@ class Message
     public function setModifiedAt(?\DateTimeInterface $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
+
+        return $this;
+    }
+
+    public function getVotes(): ?int
+    {
+        return $this->votes;
+    }
+
+    public function setVotes(int $votes): self
+    {
+        $this->votes = $votes;
 
         return $this;
     }
