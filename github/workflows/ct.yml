@@ -1,0 +1,16 @@
+name: CI
+
+on: [push]
+
+jobs: 
+  build-test: 
+    run-on: ubuntu-latest
+#  write test steps here for symfony
+    steps:
+    - uses: actions/checkout
+    - uses:  shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, intl, pdo_mysql, zip, gd, dom, curl, xml, json, iconv, imagick
+        coverage: none
+    - uses: actions/cache@v2

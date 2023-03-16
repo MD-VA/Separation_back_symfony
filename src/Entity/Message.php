@@ -15,7 +15,7 @@ use App\Repository\MessageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Controller\UpVoteMessageController;
+use App\Controller\VoteController;
 use Symfony\Flex\Path;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
@@ -41,7 +41,7 @@ use Symfony\Flex\Path;
     operations: [ new Patch(
         uriTemplate: '/message/{id}/vote',
         name: '',
-        controller: UpVoteMessageController::class,
+        controller: VoteController::class,
     ) ],
     denormalizationContext: ['groups' => ['message:empty']]
 )]
