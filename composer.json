@@ -5,6 +5,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.1",
+        "ext-sodium": "*",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "api-platform/core": "^3.0",
